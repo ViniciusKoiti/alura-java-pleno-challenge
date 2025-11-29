@@ -97,14 +97,4 @@ class OpenTextTaskTest {
         
         assertThat(task.getType()).isEqualTo(Type.OPEN_TEXT);
     }
-
-    @Test
-    void canBeAddedToCourse__should_return_true_when_course_building() {
-        // TODO: Implement test for course status check
-    }
-
-    @Test
-    void canBeAddedToCourse__should_return_false_when_course_published() {
-        // TODO: Implement test for published course check
-    }
 }
