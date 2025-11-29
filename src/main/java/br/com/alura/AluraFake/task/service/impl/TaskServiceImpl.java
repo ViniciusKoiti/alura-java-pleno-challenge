@@ -37,7 +37,7 @@ public class TaskServiceImpl implements TaskService {
         }
         OpenTextTask saved = taskRepository.save(task);
         return new OpenTextTaskDTO(
-                saved.getCourse().getId(),
+                dto.getCourseId(),
                 saved.getStatement(),
                 saved.getOrderPosition()
         );
