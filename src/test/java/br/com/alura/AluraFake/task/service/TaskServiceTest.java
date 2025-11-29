@@ -99,4 +99,19 @@ class TaskServiceTest {
         verify(taskRepository, never()).save(any());
     }
 
+    @Test
+    void createOpenTextTask__should_throw_exception_when_statement_is_empty() {
+        // Given
+        OpenTextTaskDTO emptyStatementDTO = new OpenTextTaskDTO(1L, "", 1);
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(emptyStatementDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Statement cannot be null or empty");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+    }
+
 }
