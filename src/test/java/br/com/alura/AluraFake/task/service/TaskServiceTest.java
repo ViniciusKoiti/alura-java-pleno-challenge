@@ -2,6 +2,7 @@ package br.com.alura.AluraFake.task.service;
 
 import br.com.alura.AluraFake.course.Course;
 import br.com.alura.AluraFake.course.CourseRepository;
+import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.task.OpenTextTask;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -65,5 +67,18 @@ class TaskServiceTest {
         verify(taskRepository).save(any(OpenTextTask.class));
     }
 
+    @Test
+    void createOpenTextTask__should_throw_exception_when_course_not_found() {
+        // Given
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(validTaskDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Course not found with id: 1");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+    }
 
 }
