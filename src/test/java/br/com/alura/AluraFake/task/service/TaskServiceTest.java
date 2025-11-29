@@ -7,6 +7,7 @@ import br.com.alura.AluraFake.task.OpenTextTask;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
 import br.com.alura.AluraFake.task.service.impl.TaskServiceImpl;
+import br.com.alura.AluraFake.task.validator.TaskValidator;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +37,9 @@ class TaskServiceTest {
 
     @Mock
     private CourseRepository courseRepository;
+
+    @Mock
+    private TaskValidator taskValidator;
 
     @InjectMocks
     private TaskServiceImpl taskService;
@@ -54,6 +63,8 @@ class TaskServiceTest {
     void createOpenTextTask__should_create_task_successfully() {
         // Given
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(Collections.emptyList());
         
         OpenTextTask savedTask = new OpenTextTask("What you think about Java?", 1, buildingCourse);
         when(taskRepository.save(any(OpenTextTask.class))).thenReturn(savedTask);
@@ -68,6 +79,7 @@ class TaskServiceTest {
         assertThat(result.getOrder()).isEqualTo(1);
         
         verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, buildingCourse);
         verify(taskRepository).save(any(OpenTextTask.class));
     }
 
@@ -89,6 +101,8 @@ class TaskServiceTest {
     void createOpenTextTask__should_throw_exception_when_course_is_published() {
         // Given
         when(courseRepository.findById(1L)).thenReturn(Optional.of(publishedCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(List.of("Course must be in BUILDING status to receive tasks"));
 
         // When & Then
         assertThatThrownBy(() -> taskService.createOpenTextTask(validTaskDTO))
@@ -96,6 +110,7 @@ class TaskServiceTest {
                 .hasMessage("Validation failed: Course must be in BUILDING status to receive tasks");
         
         verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, publishedCourse);
         verify(taskRepository, never()).save(any());
     }
 
@@ -104,13 +119,16 @@ class TaskServiceTest {
         // Given
         OpenTextTaskDTO emptyStatementDTO = new OpenTextTaskDTO(1L, "", 1);
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(List.of("Statement cannot be empty"));
 
         // When & Then
         assertThatThrownBy(() -> taskService.createOpenTextTask(emptyStatementDTO))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Statement cannot be null or empty");
+                .hasMessage("Validation failed: Statement cannot be empty");
         
         verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("", 1, buildingCourse);
         verify(taskRepository, never()).save(any());
     }
 
@@ -119,13 +137,16 @@ class TaskServiceTest {
         // Given
         OpenTextTaskDTO zeroOrderDTO = new OpenTextTaskDTO(1L, "Valid statement", 0);
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(List.of("Order position must be positive"));
 
         // When & Then
         assertThatThrownBy(() -> taskService.createOpenTextTask(zeroOrderDTO))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Order position must be positive");
+                .hasMessage("Validation failed: Order position must be positive");
         
         verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("Valid statement", 0, buildingCourse);
         verify(taskRepository, never()).save(any());
     }
 

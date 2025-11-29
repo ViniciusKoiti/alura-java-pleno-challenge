@@ -1,15 +1,11 @@
 package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OpenTextTaskTest {
 
@@ -28,64 +24,39 @@ class OpenTextTaskTest {
     }
 
     @Test
-    void validate__should_return_no_errors_for_valid_task() {
+    void constructor__should_allow_creation_with_any_values() {
         User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
         Course course = new Course("Java", "Curso de Java", instructor);
         
         OpenTextTask task = new OpenTextTask("What are the main principles of OOP?", 1, course);
         
-        List<String> errors = task.validate();
-        
-        assertThat(errors).isEmpty();
+        assertThat(task.getStatement()).isEqualTo("What are the main principles of OOP?");
+        assertThat(task.getOrderPosition()).isEqualTo(1);
+        assertThat(task.getCourse()).isEqualTo(course);
     }
 
     @Test
-    void validate__should_return_errors_for_invalid_statement() {
+    void constructor__should_allow_empty_statement() {
         User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
         Course course = new Course("Java", "Curso de Java", instructor);
         
-        assertThatThrownBy(() -> new OpenTextTask(null, 1, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Statement cannot be null or empty");
+        OpenTextTask task = new OpenTextTask("", 0, course);
         
-        assertThatThrownBy(() -> new OpenTextTask("", 1, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Statement cannot be null or empty");
-        
-        assertThatThrownBy(() -> new OpenTextTask("   ", 1, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Statement cannot be null or empty");
+        assertThat(task.getStatement()).isEqualTo("");
+        assertThat(task.getOrderPosition()).isEqualTo(0);
+        assertThat(task.getCourse()).isEqualTo(course);
     }
 
     @Test
-    void validate__should_return_errors_for_invalid_order() {
+    void constructor__should_allow_null_values() {
         User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
         Course course = new Course("Java", "Curso de Java", instructor);
         
-        assertThatThrownBy(() -> new OpenTextTask("Valid statement", null, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Order position cannot be null");
+        OpenTextTask task = new OpenTextTask(null, null, course);
         
-        assertThatThrownBy(() -> new OpenTextTask("Valid statement", 0, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Order position must be positive");
-        
-        assertThatThrownBy(() -> new OpenTextTask("Valid statement", -1, course))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Order position must be positive");
-    }
-
-    @Test
-    void validate__should_return_errors_when_course_not_in_building() {
-        User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
-        Course course = new Course("Java", "Curso de Java", instructor);
-        course.setStatus(Status.PUBLISHED);
-        
-        OpenTextTask task = new OpenTextTask("What is inheritance?", 1, course);
-        
-        List<String> errors = task.validate();
-        
-        assertThat(errors).contains("Course must be in BUILDING status to receive tasks");
+        assertThat(task.getStatement()).isNull();
+        assertThat(task.getOrderPosition()).isNull();
+        assertThat(task.getCourse()).isEqualTo(course);
     }
 
     @Test

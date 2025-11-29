@@ -7,6 +7,7 @@ import br.com.alura.AluraFake.task.OpenTextTask;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
 import br.com.alura.AluraFake.task.service.TaskService;
+import br.com.alura.AluraFake.task.validator.TaskValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -15,10 +16,12 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
         private final TaskRepository taskRepository;
         private final CourseRepository courseRepository;
+        private final TaskValidator taskValidator;
 
-    public TaskServiceImpl(TaskRepository taskRepository, CourseRepository courseRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, CourseRepository courseRepository, TaskValidator taskValidator) {
         this.taskRepository = taskRepository;
         this.courseRepository = courseRepository;
+        this.taskValidator = taskValidator;
     }
     @Override
     @Transactional
@@ -26,15 +29,16 @@ public class TaskServiceImpl implements TaskService {
         Course course = courseRepository.findById(dto.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("Course not found with id: " + dto.getCourseId()));
 
+        List<String> errors = taskValidator.validateOpenTextTask(dto.getStatement(), dto.getOrder(), course);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
+        }
+
         OpenTextTask task = new OpenTextTask(
                 dto.getStatement(),
                 dto.getOrder(),
                 course
         );
-        List<String> errors = task.validate();
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
-        }
         OpenTextTask saved = taskRepository.save(task);
         return new OpenTextTaskDTO(
                 dto.getCourseId(),
