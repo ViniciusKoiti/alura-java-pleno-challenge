@@ -1,6 +1,7 @@
 package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class TaskController {
 
     @PostMapping("/task/new/opentext")
-    public ResponseEntity<OpenTextTaskDTO> newOpenTextExercise(@RequestBody OpenTextTaskDTO task) {
+    public ResponseEntity<OpenTextTaskDTO> newOpenTextExercise(@Valid @RequestBody OpenTextTaskDTO task) {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

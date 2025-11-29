@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TaskController.class)
@@ -43,4 +44,36 @@ class TaskControllerTest {
                 .content(objectMapper.writeValueAsString(openTextTaskDTO)))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    void newOpenTextExercise__should_return_error_when_the_statement_size_is_less_than_4() throws Exception {
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "Wha", 0);
+
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextExercise__should_return_error_when_the_statement_size_is_greater_than_256() throws Exception {
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, """
+                REST is an architectural style defined by Roy Fielding around 2000.
+                It emphasizes stateless communication, uniform interfaces, and resources identified by URIs, shaping how modern web APIs are designed,
+                 built, and understood worldwide, how that impact in your develop?
+                """, 0);
+
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+
+
 }
+
