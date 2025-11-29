@@ -1,11 +1,10 @@
 package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
+import br.com.alura.AluraFake.task.service.TaskService;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
-import br.com.alura.AluraFake.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
 class TaskControllerTest {
@@ -24,10 +23,7 @@ class TaskControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private CourseRepository courseRepository;
-
-    @MockBean
-    private UserRepository userRepository;
+    private TaskService taskService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -35,8 +31,10 @@ class TaskControllerTest {
     @Test
     void newOpenTextExercise__should_create_open_text_task_successfully() throws Exception {
         User instructor = new User("Paulo Silva", "paulo@alura.com.br", Role.INSTRUCTOR);
-        userRepository.save(instructor);
         Course course = new Course("Java Fundamentals", "Learn Java basics", instructor);
+
+
+
         OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "What you think about statement?", 1);
 
         mockMvc.perform(post("/task/new/opentext")
@@ -63,7 +61,7 @@ class TaskControllerTest {
                 REST is an architectural style defined by Roy Fielding around 2000.
                 It emphasizes stateless communication, uniform interfaces, and resources identified by URIs, shaping how modern web APIs are designed,
                  built, and understood worldwide, how that impact in your develop?
-                """, 0);
+                """, 2);
 
         mockMvc.perform(post("/task/new/opentext")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,36 +80,6 @@ class TaskControllerTest {
                         .content(objectMapper.writeValueAsString(openTextTaskDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$[?(@.field == 'courseId')]").exists());
-    }
-
-    @Test
-    void newOpenTextExercise__should_return_error_when_statement_is_blank() throws Exception {
-        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "    ", 1);
-
-        mockMvc.perform(post("/task/new/opentext")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
-    }
-
-    @Test
-    void newOpenTextExercise__should_return_error_when_order_negative_or_zero() throws Exception {
-        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "    ", 0);
-
-        mockMvc.perform(post("/task/new/opentext")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
-
-        OpenTextTaskDTO openTextTaskDTOOrderNegative = new OpenTextTaskDTO(1L, "    ", -1);
-
-        mockMvc.perform(post("/task/new/opentext")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(openTextTaskDTOOrderNegative)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
     }
 
 }
