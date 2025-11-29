@@ -1,5 +1,6 @@
 package br.com.alura.AluraFake.task;
 
+import br.com.alura.AluraFake.task.dto.NewSingleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
 import br.com.alura.AluraFake.task.service.TaskService;
 import jakarta.validation.Valid;
@@ -24,8 +25,9 @@ public class TaskController {
 
 
     @PostMapping("/task/new/singlechoice")
-    public ResponseEntity<Task> newSingleChoice() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<NewSingleChoiceTaskDTO> newSingleChoice(@Valid @RequestBody NewSingleChoiceTaskDTO task) {
+        NewSingleChoiceTaskDTO created = taskService.createSingleChoiceTask(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PostMapping("/task/new/multiplechoice")
