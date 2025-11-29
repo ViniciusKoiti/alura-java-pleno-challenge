@@ -37,7 +37,7 @@ class TaskControllerTest {
         User instructor = new User("Paulo Silva", "paulo@alura.com.br", Role.INSTRUCTOR);
         userRepository.save(instructor);
         Course course = new Course("Java Fundamentals", "Learn Java basics", instructor);
-        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "What you think about statement?", 0);
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "What you think about statement?", 1);
 
         mockMvc.perform(post("/task/new/opentext")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ class TaskControllerTest {
 
     @Test
     void newOpenTextExercise__should_return_error_when_the_statement_size_is_less_than_4() throws Exception {
-        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "Wha", 0);
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "Wha", 1);
 
         mockMvc.perform(post("/task/new/opentext")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -75,13 +75,43 @@ class TaskControllerTest {
 
     @Test
     void newOpenTextExercise__should_return_error_when_courseId_is_null() throws Exception {
-        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(null, "Valid statement here", 0);
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(null, "Valid statement here", 1);
 
         mockMvc.perform(post("/task/new/opentext")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(openTextTaskDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$[?(@.field == 'courseId')]").exists());
+    }
+
+    @Test
+    void newOpenTextExercise__should_return_error_when_statement_is_blank() throws Exception {
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "    ", 1);
+
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
+    }
+
+    @Test
+    void newOpenTextExercise__should_return_error_when_order_negative_or_zero() throws Exception {
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(1L, "    ", 0);
+
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
+
+        OpenTextTaskDTO openTextTaskDTOOrderNegative = new OpenTextTaskDTO(1L, "    ", -1);
+
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTOOrderNegative)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[?(@.field == 'statement')]").exists());
     }
 
 }
