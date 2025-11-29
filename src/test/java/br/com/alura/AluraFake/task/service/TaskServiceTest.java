@@ -114,4 +114,19 @@ class TaskServiceTest {
         verify(taskRepository, never()).save(any());
     }
 
+    @Test
+    void createOpenTextTask__should_throw_exception_when_order_position_is_zero() {
+        // Given
+        OpenTextTaskDTO zeroOrderDTO = new OpenTextTaskDTO(1L, "Valid statement", 0);
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(zeroOrderDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Order position must be positive");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+    }
+
 }
