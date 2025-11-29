@@ -73,7 +73,16 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$[0].message").isNotEmpty());
     }
 
+    @Test
+    void newOpenTextExercise__should_return_error_when_courseId_is_null() throws Exception {
+        OpenTextTaskDTO openTextTaskDTO = new OpenTextTaskDTO(null, "Valid statement here", 0);
 
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(openTextTaskDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[?(@.field == 'courseId')]").exists());
+    }
 
 }
 
