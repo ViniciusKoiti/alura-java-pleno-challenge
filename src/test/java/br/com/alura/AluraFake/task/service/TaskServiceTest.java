@@ -35,13 +35,17 @@ class TaskServiceTest {
     @InjectMocks
     private TaskServiceImpl taskService;
 
-    private Course course;
+    private Course buildingCourse;
+    private Course publishedCourse;
     private OpenTextTaskDTO validTaskDTO;
 
     @BeforeEach
     void setUp() {
         User instructor = new User("Paulo Silva", "paulo@alura.com.br", Role.INSTRUCTOR);
-        course = new Course("Java Fundamentals", "Learn Java basics", instructor);
+        buildingCourse = new Course("Java Fundamentals", "Learn Java basics", instructor);
+        
+        publishedCourse = new Course("Advanced Java", "Advanced Java concepts", instructor);
+        publishedCourse.setStatus(Status.PUBLISHED);
         
         validTaskDTO = new OpenTextTaskDTO(1L, "What you think about Java?", 1);
     }
@@ -49,9 +53,9 @@ class TaskServiceTest {
     @Test
     void createOpenTextTask__should_create_task_successfully() {
         // Given
-        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
         
-        OpenTextTask savedTask = new OpenTextTask("What you think about Java?", 1, course);
+        OpenTextTask savedTask = new OpenTextTask("What you think about Java?", 1, buildingCourse);
         when(taskRepository.save(any(OpenTextTask.class))).thenReturn(savedTask);
 
         // When
@@ -76,6 +80,20 @@ class TaskServiceTest {
         assertThatThrownBy(() -> taskService.createOpenTextTask(validTaskDTO))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Course not found with id: 1");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+    }
+
+    @Test
+    void createOpenTextTask__should_throw_exception_when_course_is_published() {
+        // Given
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(publishedCourse));
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(validTaskDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Validation failed: Course must be in BUILDING status to receive tasks");
         
         verify(courseRepository).findById(1L);
         verify(taskRepository, never()).save(any());
