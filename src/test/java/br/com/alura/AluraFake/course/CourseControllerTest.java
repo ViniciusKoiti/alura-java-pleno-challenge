@@ -2,6 +2,7 @@ package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
 import br.com.alura.AluraFake.course.service.CourseCreationService;
+import br.com.alura.AluraFake.course.service.CourseQueryService;
 import br.com.alura.AluraFake.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -23,13 +25,11 @@ class CourseControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private UserRepository userRepository;
-    @MockBean
-    private CourseRepository courseRepository;
-    @MockBean
     private CoursePublicationService coursePublicationService;
     @MockBean
     private CourseCreationService courseCreationService;
+    @MockBean
+    private CourseQueryService courseQueryService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -49,7 +49,7 @@ class CourseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCourseDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.field").value("emailInstructor"))
+                .andExpect(jsonPath("$.field").value("error"))
                 .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
@@ -69,7 +69,7 @@ class CourseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCourseDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.field").value("emailInstructor"))
+                .andExpect(jsonPath("$.field").value("error"))
                 .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
@@ -93,13 +93,11 @@ class CourseControllerTest {
 
     @Test
     void listAllCourses__should_list_all_courses() throws Exception {
-        User paulo = new User("Paulo", "paulo@alua.com.br", Role.INSTRUCTOR);
+        CourseListItemDTO java = new CourseListItemDTO(new Course("Java", "Curso de java", new User("Paulo", "paulo@alua.com.br", Role.INSTRUCTOR)));
+        CourseListItemDTO hibernate = new CourseListItemDTO(new Course("Hibernate", "Curso de hibernate", new User("Paulo", "paulo@alua.com.br", Role.INSTRUCTOR)));
+        CourseListItemDTO spring = new CourseListItemDTO(new Course("Spring", "Curso de spring", new User("Paulo", "paulo@alua.com.br", Role.INSTRUCTOR)));
 
-        Course java = new Course("Java", "Curso de java", paulo);
-        Course hibernate = new Course("Hibernate", "Curso de hibernate", paulo);
-        Course spring = new Course("Spring", "Curso de spring", paulo);
-
-        when(courseRepository.findAll()).thenReturn(Arrays.asList(java, hibernate, spring));
+        when(courseQueryService.listAllCourses()).thenReturn(Arrays.asList(java, hibernate, spring));
 
         mockMvc.perform(get("/course/all")
                         .contentType(MediaType.APPLICATION_JSON))
