@@ -13,7 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskValidatorTest {
     
-    private final TaskValidator validator = new TaskValidator();
+    private final TaskValidator validator = new TaskValidator(
+            new OpenTextTaskValidator(),
+            new SingleChoiceTaskValidator(),
+            new MultipleChoiceTaskValidator()
+    );
 
     @Test
     void validateMultipleChoiceTask__should_pass_with_valid_input() {

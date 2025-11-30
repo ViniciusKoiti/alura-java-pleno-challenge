@@ -1,153 +1,39 @@
 package br.com.alura.AluraFake.task.validator;
 
 import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.Status;
 import br.com.alura.AluraFake.task.dto.OptionDTO;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class TaskValidator {
 
+    private final OpenTextTaskValidator openTextTaskValidator;
+    private final SingleChoiceTaskValidator singleChoiceTaskValidator;
+    private final MultipleChoiceTaskValidator multipleChoiceTaskValidator;
+
+    public TaskValidator(OpenTextTaskValidator openTextTaskValidator,
+                         SingleChoiceTaskValidator singleChoiceTaskValidator,
+                         MultipleChoiceTaskValidator multipleChoiceTaskValidator) {
+        this.openTextTaskValidator = openTextTaskValidator;
+        this.singleChoiceTaskValidator = singleChoiceTaskValidator;
+        this.multipleChoiceTaskValidator = multipleChoiceTaskValidator;
+    }
+
     public List<String> validateOpenTextTask(String statement, Integer orderPosition, Course course) {
-        List<String> errors = new ArrayList<>();
-        
-        if (statement == null || statement.trim().isEmpty()) {
-            errors.add("Statement cannot be empty");
-        }
-        
-        if (orderPosition == null || orderPosition <= 0) {
-            errors.add("Order position must be positive");
-        }
-        
-        if (course != null && !canTaskBeAddedToCourse(course)) {
-            errors.add("Course must be in BUILDING status to receive tasks");
-        }
-        
-        return errors;
+        return openTextTaskValidator.validate(statement, orderPosition, course);
     }
-    
+
     public List<String> validateSingleChoiceTask(String statement, Integer orderPosition, Course course, List<OptionDTO> options) {
-        List<String> errors = new ArrayList<>();
-        
-        if (statement == null || statement.trim().isEmpty()) {
-            errors.add("Statement cannot be empty");
-        }
-        
-        if (orderPosition == null || orderPosition <= 0) {
-            errors.add("Order position must be positive");
-        }
-        
-        if (course != null && !canTaskBeAddedToCourse(course)) {
-            errors.add("Course must be in BUILDING status to receive tasks");
-        }
-        
-        if (options == null || options.size() < 2 || options.size() > 5) {
-            errors.add("SingleChoice task must have between 2 and 5 options");
-        } else {
-            errors.addAll(validateSingleChoiceOptions(statement, options));
-        }
-        
-        return errors;
+        return singleChoiceTaskValidator.validate(statement, orderPosition, course, options);
     }
-    
-    private List<String> validateSingleChoiceOptions(String statement, List<OptionDTO> options) {
-        List<String> errors = new ArrayList<>();
-        
-        long correctCount = options.stream()
-                .filter(option -> option.getIsCorrect() != null && option.getIsCorrect())
-                .count();
-        
-        if (correctCount != 1) {
-            errors.add("SingleChoice task must have exactly one correct option");
-        }
-        
-        Set<String> optionTexts = new HashSet<>();
-        for (OptionDTO option : options) {
-            String optionText = option.getOption();
-            if (optionText != null) {
-                optionText = optionText.trim();
-                
-                if (optionText.equals(statement)) {
-                    errors.add("Option cannot be equal to the statement");
-                }
-                
-                if (!optionTexts.add(optionText)) {
-                    errors.add("Options cannot be equal to each other");
-                }
-            }
-        }
-        
-        return errors;
-    }
-    
+
     public List<String> validateMultipleChoiceTask(String statement, Integer orderPosition, Course course, List<OptionDTO> options) {
-        List<String> errors = new ArrayList<>();
-        
-        if (statement == null || statement.trim().isEmpty()) {
-            errors.add("Statement cannot be empty");
-        }
-        
-        if (orderPosition == null || orderPosition <= 0) {
-            errors.add("Order position must be positive");
-        }
-        
-        if (course != null && !canTaskBeAddedToCourse(course)) {
-            errors.add("Course must be in BUILDING status to receive tasks");
-        }
-        
-        if (options == null || options.size() < 3 || options.size() > 5) {
-            errors.add("MultipleChoice task must have between 3 and 5 options");
-        } else {
-            errors.addAll(validateMultipleChoiceOptions(statement, options));
-        }
-        
-        return errors;
+        return multipleChoiceTaskValidator.validate(statement, orderPosition, course, options);
     }
-    
-    private List<String> validateMultipleChoiceOptions(String statement, List<OptionDTO> options) {
-        List<String> errors = new ArrayList<>();
-        
-        long correctCount = options.stream()
-                .filter(option -> option.getIsCorrect() != null && option.getIsCorrect())
-                .count();
-        
-        long incorrectCount = options.stream()
-                .filter(option -> option.getIsCorrect() != null && !option.getIsCorrect())
-                .count();
-        
-        if (correctCount < 2) {
-            errors.add("MultipleChoice task must have at least two correct options");
-        }
-        
-        if (incorrectCount < 1) {
-            errors.add("MultipleChoice task must have at least one incorrect option");
-        }
-        
-        Set<String> optionTexts = new HashSet<>();
-        for (OptionDTO option : options) {
-            String optionText = option.getOption();
-            if (optionText != null) {
-                optionText = optionText.trim();
-                
-                if (optionText.equals(statement)) {
-                    errors.add("Option cannot be equal to the statement");
-                }
-                
-                if (!optionTexts.add(optionText)) {
-                    errors.add("Options cannot be equal to each other");
-                }
-            }
-        }
-        
-        return errors;
-    }
-    
+
     public boolean canTaskBeAddedToCourse(Course course) {
-        return course != null && course.getStatus() == Status.BUILDING;
+        return openTextTaskValidator.canTaskBeAddedToCourse(course);
     }
 }
