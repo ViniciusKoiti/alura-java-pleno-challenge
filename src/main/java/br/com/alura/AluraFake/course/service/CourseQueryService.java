@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.course.service;
 
-import br.com.alura.AluraFake.course.CourseListItemDTO;
+import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
 import br.com.alura.AluraFake.course.CourseRepository;
 import org.springframework.stereotype.Service;
 

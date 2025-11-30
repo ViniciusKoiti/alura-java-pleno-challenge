@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.task.service;
 
-import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.task.entities.OpenTextTask;
 import br.com.alura.AluraFake.task.entities.Task;
 import br.com.alura.AluraFake.task.TaskRepository;

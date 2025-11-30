@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.course.service.impl;
 
-import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
 import br.com.alura.AluraFake.course.validator.CoursePublicationValidator;

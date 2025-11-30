@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.task.validator;
 
-import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.task.dto.OptionDTO;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,7 @@
-package br.com.alura.AluraFake.course;
+package br.com.alura.AluraFake.course.dto;
+
+import br.com.alura.AluraFake.course.entities.Course;
+import br.com.alura.AluraFake.course.enums.Status;
 
 import java.io.Serializable;
 

@@ -1,8 +1,8 @@
 package br.com.alura.AluraFake.course.service.impl;
 
-import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.course.CourseRepository;
-import br.com.alura.AluraFake.course.Status;
+import br.com.alura.AluraFake.course.enums.Status;
 import br.com.alura.AluraFake.course.validator.CoursePublicationValidator;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;

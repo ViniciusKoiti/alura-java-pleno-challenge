@@ -1,5 +1,8 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.course.dto.CourseListItemDTO;
+import br.com.alura.AluraFake.course.dto.NewCourseDTO;
+import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
 import br.com.alura.AluraFake.course.service.CourseCreationService;
 import br.com.alura.AluraFake.course.service.CourseQueryService;
@@ -13,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

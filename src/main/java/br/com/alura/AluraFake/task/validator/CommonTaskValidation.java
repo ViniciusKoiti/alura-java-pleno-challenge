@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.task.validator;
 
-import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.Status;
+import br.com.alura.AluraFake.course.entities.Course;
+import br.com.alura.AluraFake.course.enums.Status;
 
 import java.util.ArrayList;
 import java.util.List;
