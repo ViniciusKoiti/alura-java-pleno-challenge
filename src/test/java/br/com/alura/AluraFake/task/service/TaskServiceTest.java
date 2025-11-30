@@ -80,6 +80,7 @@ class TaskServiceTest {
         when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
                 .thenReturn(Collections.emptyList());
         when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(false);
+        when(taskOrderService.isValidOrderPosition(anyLong(), anyInt())).thenReturn(true);
         
         OpenTextTask savedTask = new OpenTextTask("What you think about Java?", 1, buildingCourse);
         when(taskRepository.save(any(OpenTextTask.class))).thenReturn(savedTask);
@@ -96,6 +97,7 @@ class TaskServiceTest {
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, buildingCourse);
         verify(taskOrderService).hasStatementConflict(1L, "What you think about Java?");
+        verify(taskOrderService).isValidOrderPosition(1L, 1);
         verify(taskOrderService).handleOrderConflict(1L, 1);
         verify(taskRepository).save(any(OpenTextTask.class));
     }
@@ -192,12 +194,36 @@ class TaskServiceTest {
     }
 
     @Test
+    void createOpenTextTask__should_throw_exception_when_order_position_invalid() {
+        // Given
+        OpenTextTaskDTO invalidOrderDTO = new OpenTextTaskDTO(1L, "Valid statement", 5); // Gap in sequence
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(Collections.emptyList());
+        when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(false);
+        when(taskOrderService.isValidOrderPosition(anyLong(), anyInt())).thenReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(invalidOrderDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid order position. Order must be sequential starting from 1.");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("Valid statement", 5, buildingCourse);
+        verify(taskOrderService).hasStatementConflict(1L, "Valid statement");
+        verify(taskOrderService).isValidOrderPosition(1L, 5);
+        verify(taskOrderService, never()).handleOrderConflict(anyLong(), anyInt());
+        verify(taskRepository, never()).save(any());
+    }
+
+    @Test
     void createMultipleChoiceTask__should_create_task_successfully() {
         // Given
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
         when(taskValidator.validateMultipleChoiceTask(anyString(), anyInt(), any(Course.class), any(List.class)))
                 .thenReturn(Collections.emptyList());
         when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(false);
+        when(taskOrderService.isValidOrderPosition(anyLong(), anyInt())).thenReturn(true);
         
         MultipleChoiceTask savedTask = new MultipleChoiceTask("Which are Java technologies?", 1, buildingCourse, Collections.emptyList());
         when(taskRepository.save(any(MultipleChoiceTask.class))).thenReturn(savedTask);
@@ -215,6 +241,7 @@ class TaskServiceTest {
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateMultipleChoiceTask("Which are Java technologies?", 1, buildingCourse, validMultipleChoiceDTO.getOptions());
         verify(taskOrderService).hasStatementConflict(1L, "Which are Java technologies?");
+        verify(taskOrderService).isValidOrderPosition(1L, 1);
         verify(taskOrderService).handleOrderConflict(1L, 1);
         verify(taskRepository).save(any(MultipleChoiceTask.class));
     }

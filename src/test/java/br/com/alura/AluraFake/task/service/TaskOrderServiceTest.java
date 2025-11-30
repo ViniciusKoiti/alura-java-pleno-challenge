@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -161,5 +162,101 @@ class TaskOrderServiceTest {
         // Then
         verify(taskRepository).findByCourseIdAndOrderPosition(courseId, requestedOrder);
         verify(taskRepository, never()).incrementOrderPositionsFromOrder(any(), any());
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_true_for_order_1_when_no_tasks() {
+        // Given
+        Long courseId = 1L;
+        Integer requestedOrder = 1;
+        when(taskRepository.findByCourseIdOrderByOrderPositionAsc(courseId)).thenReturn(List.of());
+
+        // When
+        boolean result = taskOrderService.isValidOrderPosition(courseId, requestedOrder);
+
+        // Then
+        assertThat(result).isTrue();
+        verify(taskRepository).findByCourseIdOrderByOrderPositionAsc(courseId);
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_false_for_order_greater_than_1_when_no_tasks() {
+        // Given
+        Long courseId = 1L;
+        Integer requestedOrder = 3;
+        when(taskRepository.findByCourseIdOrderByOrderPositionAsc(courseId)).thenReturn(List.of());
+
+        // When
+        boolean result = taskOrderService.isValidOrderPosition(courseId, requestedOrder);
+
+        // Then
+        assertThat(result).isFalse();
+        verify(taskRepository).findByCourseIdOrderByOrderPositionAsc(courseId);
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_true_for_next_sequential_order() {
+        // Given
+        Long courseId = 1L;
+        Integer requestedOrder = 3;
+        
+        Task task1 = new OpenTextTask("Task 1", 1, course);
+        Task task2 = new OpenTextTask("Task 2", 2, course);
+        
+        when(taskRepository.findByCourseIdOrderByOrderPositionAsc(courseId))
+                .thenReturn(List.of(task1, task2));
+
+        // When
+        boolean result = taskOrderService.isValidOrderPosition(courseId, requestedOrder);
+
+        // Then
+        assertThat(result).isTrue();
+        verify(taskRepository).findByCourseIdOrderByOrderPositionAsc(courseId);
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_false_for_gap_in_sequence() {
+        // Given
+        Long courseId = 1L;
+        Integer requestedOrder = 5; // Gap: should be 3
+        
+        Task task1 = new OpenTextTask("Task 1", 1, course);
+        Task task2 = new OpenTextTask("Task 2", 2, course);
+        
+        when(taskRepository.findByCourseIdOrderByOrderPositionAsc(courseId))
+                .thenReturn(List.of(task1, task2));
+
+        // When
+        boolean result = taskOrderService.isValidOrderPosition(courseId, requestedOrder);
+
+        // Then
+        assertThat(result).isFalse();
+        verify(taskRepository).findByCourseIdOrderByOrderPositionAsc(courseId);
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_false_for_null_order() {
+        // Given
+        Long courseId = 1L;
+        Integer requestedOrder = null;
+
+        // When
+        boolean result = taskOrderService.isValidOrderPosition(courseId, requestedOrder);
+
+        // Then
+        assertThat(result).isFalse();
+        verify(taskRepository, never()).findByCourseIdOrderByOrderPositionAsc(any());
+    }
+
+    @Test
+    void isValidOrderPosition__should_return_false_for_zero_or_negative_order() {
+        // Given
+        Long courseId = 1L;
+
+        // When & Then
+        assertThat(taskOrderService.isValidOrderPosition(courseId, 0)).isFalse();
+        assertThat(taskOrderService.isValidOrderPosition(courseId, -1)).isFalse();
+        
+        verify(taskRepository, never()).findByCourseIdOrderByOrderPositionAsc(any());
     }
 }

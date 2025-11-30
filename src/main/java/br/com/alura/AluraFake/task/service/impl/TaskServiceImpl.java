@@ -48,6 +48,10 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("A task with this statement already exists for this course");
         }
 
+        if (!taskOrderService.isValidOrderPosition(dto.getCourseId(), dto.getOrder())) {
+            throw new IllegalArgumentException("Invalid order position. Order must be sequential starting from 1.");
+        }
+
         taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());
 
         OpenTextTask task = new OpenTextTask(
@@ -81,6 +85,10 @@ public class TaskServiceImpl implements TaskService {
 
         if (taskOrderService.hasStatementConflict(dto.getCourseId(), dto.getStatement())) {
             throw new IllegalArgumentException("A task with this statement already exists for this course");
+        }
+
+        if (!taskOrderService.isValidOrderPosition(dto.getCourseId(), dto.getOrder())) {
+            throw new IllegalArgumentException("Invalid order position. Order must be sequential starting from 1.");
         }
 
         taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());
@@ -121,6 +129,10 @@ public class TaskServiceImpl implements TaskService {
 
         if (taskOrderService.hasStatementConflict(dto.getCourseId(), dto.getStatement())) {
             throw new IllegalArgumentException("A task with this statement already exists for this course");
+        }
+
+        if (!taskOrderService.isValidOrderPosition(dto.getCourseId(), dto.getOrder())) {
+            throw new IllegalArgumentException("Invalid order position. Order must be sequential starting from 1.");
         }
 
         taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());

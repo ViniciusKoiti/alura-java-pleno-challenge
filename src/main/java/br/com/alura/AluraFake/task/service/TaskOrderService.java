@@ -5,6 +5,7 @@ import br.com.alura.AluraFake.task.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,5 +32,21 @@ public class TaskOrderService {
 
     public boolean hasStatementConflict(Long courseId, String statement) {
         return taskRepository.existsByCourseIdAndStatement(courseId, statement);
+    }
+
+    public boolean isValidOrderPosition(Long courseId, Integer requestedOrder) {
+        if (requestedOrder == null || requestedOrder <= 0) {
+            return false;
+        }
+
+        List<Task> existingTasks = taskRepository.findByCourseIdOrderByOrderPositionAsc(courseId);
+        
+        if (existingTasks.isEmpty()) {
+            return requestedOrder == 1;
+        }
+
+        int maxOrder = existingTasks.get(existingTasks.size() - 1).getOrderPosition();
+        
+        return requestedOrder <= maxOrder + 1;
     }
 }
