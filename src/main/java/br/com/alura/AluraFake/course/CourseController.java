@@ -57,13 +57,8 @@ public class CourseController {
 
     @PostMapping("/course/{id}/publish")
     public ResponseEntity createCourse(@PathVariable("id") Long id) {
-        try {
-            coursePublicationService.publishCourse(id);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorItemDTO("courseId", e.getMessage()));
-        }
+        coursePublicationService.publishCourse(id);
+        return ResponseEntity.ok().build();
     }
 
 }
