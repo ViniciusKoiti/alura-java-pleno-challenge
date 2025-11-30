@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
 
         List<String> errors = taskValidator.validateOpenTextTask(dto.getStatement(), dto.getOrder(), course);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
+            throw new IllegalArgumentException(formatValidationErrors(errors));
         }
 
         OpenTextTask task = new OpenTextTask(
@@ -67,20 +67,10 @@ public class TaskServiceImpl implements TaskService {
                 dto.getOptions()
         );
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
+            throw new IllegalArgumentException(formatValidationErrors(errors));
         }
 
-        List<TaskOption> options = new ArrayList<>();
-        for (int i = 0; i < dto.getOptions().size(); i++) {
-            OptionDTO optionDto = dto.getOptions().get(i);
-            TaskOption option = new TaskOption(
-                    optionDto.getOption(),
-                    optionDto.getIsCorrect(),
-                    i + 1,
-                    null
-            );
-            options.add(option);
-        }
+        List<TaskOption> options = mapOptions(dto.getOptions());
 
         SingleChoiceTask task = new SingleChoiceTask(
                 dto.getStatement(),
@@ -111,20 +101,10 @@ public class TaskServiceImpl implements TaskService {
                 dto.getOptions()
         );
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
+            throw new IllegalArgumentException(formatValidationErrors(errors));
         }
 
-        List<TaskOption> options = new ArrayList<>();
-        for (int i = 0; i < dto.getOptions().size(); i++) {
-            OptionDTO optionDto = dto.getOptions().get(i);
-            TaskOption option = new TaskOption(
-                    optionDto.getOption(),
-                    optionDto.getIsCorrect(),
-                    i + 1,
-                    null
-            );
-            options.add(option);
-        }
+        List<TaskOption> options = mapOptions(dto.getOptions());
 
         MultipleChoiceTask task = new MultipleChoiceTask(
                 dto.getStatement(),
@@ -140,5 +120,24 @@ public class TaskServiceImpl implements TaskService {
                 saved.getOrderPosition(),
                 dto.getOptions()
         );
+    }
+
+    private List<TaskOption> mapOptions(List<OptionDTO> optionDTOs) {
+        List<TaskOption> options = new ArrayList<>();
+        for (int i = 0; i < optionDTOs.size(); i++) {
+            OptionDTO optionDto = optionDTOs.get(i);
+            TaskOption option = new TaskOption(
+                    optionDto.getOption(),
+                    optionDto.getIsCorrect(),
+                    i + 1,
+                    null
+            );
+            options.add(option);
+        }
+        return options;
+    }
+
+    private String formatValidationErrors(List<String> errors) {
+        return "Validation failed: " + String.join(", ", errors);
     }
 }
