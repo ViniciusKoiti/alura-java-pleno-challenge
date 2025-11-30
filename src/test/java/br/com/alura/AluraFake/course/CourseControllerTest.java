@@ -6,6 +6,7 @@ import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
 import br.com.alura.AluraFake.course.service.CourseCreationService;
 import br.com.alura.AluraFake.course.service.CourseQueryService;
+import br.com.alura.AluraFake.course.service.InstructorReportService;
 import br.com.alura.AluraFake.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ class CourseControllerTest {
     private CourseCreationService courseCreationService;
     @MockBean
     private CourseQueryService courseQueryService;
+    @MockBean
+    private InstructorReportService instructorReportService;
 
     @Autowired
     private ObjectMapper objectMapper;
