@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.course.entities;
 
 import br.com.alura.AluraFake.course.enums.Status;
-import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.entities.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

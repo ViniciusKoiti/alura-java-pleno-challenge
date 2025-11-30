@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.course.validator;
 
-import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.entities.User;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

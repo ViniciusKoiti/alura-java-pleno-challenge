@@ -3,6 +3,8 @@ package br.com.alura.AluraFake.infra;
 import br.com.alura.AluraFake.course.*;
 import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.user.*;
+import br.com.alura.AluraFake.user.entities.User;
+import br.com.alura.AluraFake.user.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
