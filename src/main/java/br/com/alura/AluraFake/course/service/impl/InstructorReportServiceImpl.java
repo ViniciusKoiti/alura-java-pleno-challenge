@@ -7,7 +7,7 @@ import br.com.alura.AluraFake.course.enums.Status;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.service.InstructorReportService;
 import br.com.alura.AluraFake.task.TaskRepository;
-import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.entities.User;
 import br.com.alura.AluraFake.user.UserRepository;
 import org.springframework.stereotype.Service;
 
