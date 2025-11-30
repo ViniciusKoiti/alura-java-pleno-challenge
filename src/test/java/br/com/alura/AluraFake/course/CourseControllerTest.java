@@ -112,7 +112,7 @@ class CourseControllerTest {
 
     @Test
     void publishCourse__should_return_ok_when_service_succeeds() throws Exception {
-        doNothing().when(coursePublicationService).publishCourse(42L);
+        when(coursePublicationService.publishCourse(42L)).thenReturn(null);
 
         mockMvc.perform(post("/course/42/publish"))
                 .andExpect(status().isOk());
