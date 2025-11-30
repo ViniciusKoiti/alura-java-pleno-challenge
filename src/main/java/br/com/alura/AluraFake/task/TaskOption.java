@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import org.hibernate.validator.constraints.Length;
 
 @Entity
-@Table(name = "task_option")
+@Table(name = "Task_Option")
 public class TaskOption {
 
     @Id
