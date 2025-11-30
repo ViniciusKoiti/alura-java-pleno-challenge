@@ -28,4 +28,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "ELSE true END " +
             "FROM Task t WHERE t.course.id = :courseId")
     boolean isOrderSequenceContinuous(@Param("courseId") Long courseId);
+    
+    Long countByCourseId(Long courseId);
 }
