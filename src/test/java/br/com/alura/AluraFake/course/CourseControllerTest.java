@@ -1,6 +1,7 @@
 package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
+import br.com.alura.AluraFake.course.validator.CourseCreationValidator;
 import br.com.alura.AluraFake.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,8 @@ class CourseControllerTest {
     private CourseRepository courseRepository;
     @MockBean
     private CoursePublicationService coursePublicationService;
+    @MockBean
+    private CourseCreationValidator courseCreationValidator;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -41,6 +44,8 @@ class CourseControllerTest {
 
         doReturn(Optional.empty()).when(userRepository)
                 .findByEmail(newCourseDTO.getEmailInstructor());
+        doReturn(List.of("Instructor not found")).when(courseCreationValidator)
+                .validateInstructor(Optional.empty());
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,6 +69,8 @@ class CourseControllerTest {
 
         doReturn(Optional.of(user)).when(userRepository)
                 .findByEmail(newCourseDTO.getEmailInstructor());
+        doReturn(List.of("User is not an instructor")).when(courseCreationValidator)
+                .validateInstructor(Optional.of(user));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,6 +92,7 @@ class CourseControllerTest {
         doReturn(true).when(user).isInstructor();
 
         doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
+        doReturn(List.of()).when(courseCreationValidator).validateInstructor(Optional.of(user));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)

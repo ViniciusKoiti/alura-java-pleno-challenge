@@ -1,6 +1,7 @@
 package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
+import br.com.alura.AluraFake.course.validator.CourseCreationValidator;
 import br.com.alura.AluraFake.user.*;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
@@ -17,28 +18,30 @@ public class CourseController {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final CoursePublicationService coursePublicationService;
+    private final CourseCreationValidator courseCreationValidator;
 
     @Autowired
     public CourseController(CourseRepository courseRepository,
                             UserRepository userRepository,
-                            CoursePublicationService coursePublicationService){
+                            CoursePublicationService coursePublicationService,
+                            CourseCreationValidator courseCreationValidator){
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.coursePublicationService = coursePublicationService;
+        this.courseCreationValidator = courseCreationValidator;
     }
 
     @Transactional
     @PostMapping("/course/new")
     public ResponseEntity createCourse(@Valid @RequestBody NewCourseDTO newCourse) {
 
-        //Caso implemente o bonus, pegue o instrutor logado
-        Optional<User> possibleAuthor = userRepository
-                .findByEmail(newCourse.getEmailInstructor())
-                .filter(User::isInstructor);
+        Optional<User> possibleAuthor = userRepository.findByEmail(newCourse.getEmailInstructor());
 
-        if(possibleAuthor.isEmpty()) {
+        List<String> errors = courseCreationValidator.validateInstructor(possibleAuthor);
+
+        if(!errors.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorItemDTO("emailInstructor", "Usuário não é um instrutor"));
+                    .body(new ErrorItemDTO("emailInstructor", String.join(", ", errors)));
         }
 
         Course course = new Course(newCourse.getTitle(), newCourse.getDescription(), possibleAuthor.get());
