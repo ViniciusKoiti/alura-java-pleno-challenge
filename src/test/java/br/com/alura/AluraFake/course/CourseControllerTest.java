@@ -115,4 +115,27 @@ class CourseControllerTest {
                 .andExpect(jsonPath("$[2].description").value("Curso de spring"));
     }
 
+    @Test
+    void publishCourse__should_return_ok_when_service_succeeds() throws Exception {
+        doNothing().when(coursePublicationService).publishCourse(42L);
+
+        mockMvc.perform(post("/course/42/publish"))
+                .andExpect(status().isOk());
+
+        verify(coursePublicationService, times(1)).publishCourse(42L);
+    }
+
+    @Test
+    void publishCourse__should_return_bad_request_when_service_throws() throws Exception {
+        doThrow(new IllegalArgumentException("Course must be in BUILDING status to be published"))
+                .when(coursePublicationService).publishCourse(42L);
+
+        mockMvc.perform(post("/course/42/publish"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.field").value("error"))
+                .andExpect(jsonPath("$.message").value("Course must be in BUILDING status to be published"));
+
+        verify(coursePublicationService, times(1)).publishCourse(42L);
+    }
+
 }
