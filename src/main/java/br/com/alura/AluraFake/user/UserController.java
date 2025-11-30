@@ -1,37 +1,37 @@
 package br.com.alura.AluraFake.user;
 
-import br.com.alura.AluraFake.dto.ErrorItemDTO;
+import br.com.alura.AluraFake.user.dto.NewUserDTO;
+import br.com.alura.AluraFake.user.dto.UserListItemDTO;
+import br.com.alura.AluraFake.user.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @Transactional
     @PostMapping("/user/new")
-    public ResponseEntity newStudent(@RequestBody @Valid NewUserDTO newUser) {
-        if(userRepository.existsByEmail(newUser.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorItemDTO("email", "Email já cadastrado no sistema"));
-        }
-        User user = newUser.toModel();
-        userRepository.save(user);
+    public ResponseEntity<Void> newStudent(@RequestBody @Valid NewUserDTO newUser) {
+        userService.createUser(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/user/all")
     public List<UserListItemDTO> listAllUsers() {
-        return userRepository.findAll().stream().map(UserListItemDTO::new).toList();
+        return userService.listUsers();
     }
-
 }

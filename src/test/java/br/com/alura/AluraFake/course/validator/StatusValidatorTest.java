@@ -2,8 +2,8 @@ package br.com.alura.AluraFake.course.validator;
 
 import br.com.alura.AluraFake.course.entities.Course;
 import br.com.alura.AluraFake.course.enums.Status;
-import br.com.alura.AluraFake.user.Role;
-import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.enums.Role;
+import br.com.alura.AluraFake.user.entities.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

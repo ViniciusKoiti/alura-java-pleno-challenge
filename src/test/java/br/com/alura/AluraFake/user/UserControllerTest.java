@@ -1,5 +1,10 @@
 package br.com.alura.AluraFake.user;
 
+import br.com.alura.AluraFake.user.dto.NewUserDTO;
+import br.com.alura.AluraFake.user.dto.UserListItemDTO;
+import br.com.alura.AluraFake.user.entities.User;
+import br.com.alura.AluraFake.user.enums.Role;
+import br.com.alura.AluraFake.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +14,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -21,7 +32,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,13 +74,14 @@ class UserControllerTest {
         newUserDTO.setName("Caio Bugorin");
         newUserDTO.setRole(Role.STUDENT);
 
-        when(userRepository.existsByEmail(newUserDTO.getEmail())).thenReturn(true);
+        doThrow(new IllegalArgumentException("Email já cadastrado no sistema"))
+                .when(userService).createUser(any(NewUserDTO.class));
 
         mockMvc.perform(post("/user/new")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newUserDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.field").value("email"))
+                .andExpect(jsonPath("$.field").value("error"))
                 .andExpect(jsonPath("$.message").value("Email já cadastrado no sistema"));
     }
 
@@ -80,7 +92,7 @@ class UserControllerTest {
         newUserDTO.setName("Caio Bugorin");
         newUserDTO.setRole(Role.STUDENT);
 
-        when(userRepository.existsByEmail(newUserDTO.getEmail())).thenReturn(false);
+        doNothing().when(userService).createUser(newUserDTO);
 
         mockMvc.perform(post("/user/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -90,9 +102,10 @@ class UserControllerTest {
 
     @Test
     void listAllUsers__should_list_all_users() throws Exception {
-        User user1 = new User("User 1", "user1@test.com",Role.STUDENT);
-        User user2 = new User("User 2", "user2@test.com",Role.STUDENT);
-        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+        User user1 = new User("User 1", "user1@test.com", Role.STUDENT);
+        User user2 = new User("User 2", "user2@test.com", Role.STUDENT);
+        List<UserListItemDTO> users = Arrays.asList(new UserListItemDTO(user1), new UserListItemDTO(user2));
+        when(userService.listUsers()).thenReturn(users);
 
         mockMvc.perform(get("/user/all")
                         .contentType(MediaType.APPLICATION_JSON))

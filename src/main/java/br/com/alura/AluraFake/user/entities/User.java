@@ -1,6 +1,7 @@
-package br.com.alura.AluraFake.user;
+package br.com.alura.AluraFake.user.entities;
 
 import br.com.alura.AluraFake.security.PasswordGenerator;
+import br.com.alura.AluraFake.user.enums.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
