@@ -3,10 +3,10 @@ package br.com.alura.AluraFake.task.service.impl;
 
 import br.com.alura.AluraFake.course.Course;
 import br.com.alura.AluraFake.course.CourseRepository;
-import br.com.alura.AluraFake.task.MultipleChoiceTask;
-import br.com.alura.AluraFake.task.OpenTextTask;
-import br.com.alura.AluraFake.task.SingleChoiceTask;
-import br.com.alura.AluraFake.task.TaskOption;
+import br.com.alura.AluraFake.task.entities.MultipleChoiceTask;
+import br.com.alura.AluraFake.task.entities.OpenTextTask;
+import br.com.alura.AluraFake.task.entities.SingleChoiceTask;
+import br.com.alura.AluraFake.task.entities.TaskOption;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.task.dto.NewMultipleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.NewSingleChoiceTaskDTO;

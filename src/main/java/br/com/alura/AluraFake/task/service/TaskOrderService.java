@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.task.service;
 
-import br.com.alura.AluraFake.task.Task;
+import br.com.alura.AluraFake.task.entities.Task;
 import br.com.alura.AluraFake.task.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,7 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.entities;
 
 import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.task.enums.Type;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 

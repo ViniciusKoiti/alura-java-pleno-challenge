@@ -1,6 +1,8 @@
 package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.course.Course;
+import br.com.alura.AluraFake.task.entities.OpenTextTask;
+import br.com.alura.AluraFake.task.enums.Type;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 import org.junit.jupiter.api.Test;

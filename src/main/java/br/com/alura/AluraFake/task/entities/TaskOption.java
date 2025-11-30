@@ -1,5 +1,6 @@
-package br.com.alura.AluraFake.task;
+package br.com.alura.AluraFake.task.entities;
 
+import br.com.alura.AluraFake.task.entities.Task;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
