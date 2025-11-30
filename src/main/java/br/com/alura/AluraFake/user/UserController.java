@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.user;
 
-import br.com.alura.AluraFake.util.ErrorItemDTO;
+import br.com.alura.AluraFake.dto.ErrorItemDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,5 +1,6 @@
-package br.com.alura.AluraFake.util;
+package br.com.alura.AluraFake.exception;
 
+import br.com.alura.AluraFake.dto.ErrorItemDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.List;
 
 @ControllerAdvice
-public class ValidationExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

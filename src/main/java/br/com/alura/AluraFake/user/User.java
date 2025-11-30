@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.user;
 
-import br.com.alura.AluraFake.util.PasswordGeneration;
+import br.com.alura.AluraFake.security.PasswordGenerator;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class User {
     }
 
     public User(String name, String email, Role role) {
-        this(name, email, role, PasswordGeneration.generatePassword());
+        this(name, email, role, PasswordGenerator.generatePassword());
     }
 
     public LocalDateTime getCreatedAt() {

@@ -1,8 +1,8 @@
-package br.com.alura.AluraFake.util;
+package br.com.alura.AluraFake.security;
 
 import java.util.Random;
 
-public class PasswordGeneration{
+public class PasswordGenerator {
 
     public static String generatePassword() {
         Random random = new Random();
