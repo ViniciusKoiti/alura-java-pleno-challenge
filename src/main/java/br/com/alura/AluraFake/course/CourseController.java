@@ -1,5 +1,6 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.course.service.CoursePublicationService;
 import br.com.alura.AluraFake.user.*;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
@@ -15,11 +16,15 @@ public class CourseController {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final CoursePublicationService coursePublicationService;
 
     @Autowired
-    public CourseController(CourseRepository courseRepository, UserRepository userRepository){
+    public CourseController(CourseRepository courseRepository,
+                            UserRepository userRepository,
+                            CoursePublicationService coursePublicationService){
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.coursePublicationService = coursePublicationService;
     }
 
     @Transactional
@@ -52,7 +57,13 @@ public class CourseController {
 
     @PostMapping("/course/{id}/publish")
     public ResponseEntity createCourse(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().build();
+        try {
+            coursePublicationService.publishCourse(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorItemDTO("courseId", e.getMessage()));
+        }
     }
 
 }
