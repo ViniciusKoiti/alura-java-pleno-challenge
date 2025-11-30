@@ -42,10 +42,8 @@ class CourseControllerTest {
         newCourseDTO.setDescription("Curso de Java");
         newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
-        doReturn(Optional.empty()).when(userRepository)
-                .findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of("Instructor not found")).when(courseCreationService)
-                .validateInstructor(Optional.empty());
+        doThrow(new IllegalArgumentException("Instructor not found"))
+                .when(courseCreationService).createCourse(any(NewCourseDTO.class));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,13 +62,8 @@ class CourseControllerTest {
         newCourseDTO.setDescription("Curso de Java");
         newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
-        User user = mock(User.class);
-        doReturn(false).when(user).isInstructor();
-
-        doReturn(Optional.of(user)).when(userRepository)
-                .findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of("User is not an instructor")).when(courseCreationService)
-                .validateInstructor(Optional.of(user));
+        doThrow(new IllegalArgumentException("User is not an instructor"))
+                .when(courseCreationService).createCourse(any(NewCourseDTO.class));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,19 +81,14 @@ class CourseControllerTest {
         newCourseDTO.setDescription("Curso de Java");
         newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
-        User user = mock(User.class);
-        doReturn(true).when(user).isInstructor();
-
-        doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of()).when(courseCreationService).validateInstructor(Optional.of(user));
-        doNothing().when(courseCreationService).createCourse(any(NewCourseDTO.class), eq(user));
+        doNothing().when(courseCreationService).createCourse(any(NewCourseDTO.class));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCourseDTO)))
                 .andExpect(status().isCreated());
 
-        verify(courseRepository, times(1)).save(any(Course.class));
+        verify(courseCreationService, times(1)).createCourse(any(NewCourseDTO.class));
     }
 
     @Test
