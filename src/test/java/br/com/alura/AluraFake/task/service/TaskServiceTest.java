@@ -44,6 +44,9 @@ class TaskServiceTest {
     @Mock
     private TaskValidator taskValidator;
 
+    @Mock
+    private TaskOrderService taskOrderService;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 
@@ -76,6 +79,7 @@ class TaskServiceTest {
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
         when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
                 .thenReturn(Collections.emptyList());
+        when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(false);
         
         OpenTextTask savedTask = new OpenTextTask("What you think about Java?", 1, buildingCourse);
         when(taskRepository.save(any(OpenTextTask.class))).thenReturn(savedTask);
@@ -91,6 +95,8 @@ class TaskServiceTest {
         
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, buildingCourse);
+        verify(taskOrderService).hasStatementConflict(1L, "What you think about Java?");
+        verify(taskOrderService).handleOrderConflict(1L, 1);
         verify(taskRepository).save(any(OpenTextTask.class));
     }
 
@@ -122,6 +128,8 @@ class TaskServiceTest {
         
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, publishedCourse);
+        verify(taskOrderService, never()).hasStatementConflict(anyLong(), anyString());
+        verify(taskOrderService, never()).handleOrderConflict(anyLong(), anyInt());
         verify(taskRepository, never()).save(any());
     }
 
@@ -140,6 +148,8 @@ class TaskServiceTest {
         
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateOpenTextTask("", 1, buildingCourse);
+        verify(taskOrderService, never()).hasStatementConflict(anyLong(), anyString());
+        verify(taskOrderService, never()).handleOrderConflict(anyLong(), anyInt());
         verify(taskRepository, never()).save(any());
     }
 
@@ -162,11 +172,32 @@ class TaskServiceTest {
     }
 
     @Test
+    void createOpenTextTask__should_throw_exception_when_statement_conflict() {
+        // Given
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
+        when(taskValidator.validateOpenTextTask(anyString(), anyInt(), any(Course.class)))
+                .thenReturn(Collections.emptyList());
+        when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> taskService.createOpenTextTask(validTaskDTO))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("A task with this statement already exists for this course");
+        
+        verify(courseRepository).findById(1L);
+        verify(taskValidator).validateOpenTextTask("What you think about Java?", 1, buildingCourse);
+        verify(taskOrderService).hasStatementConflict(1L, "What you think about Java?");
+        verify(taskOrderService, never()).handleOrderConflict(anyLong(), anyInt());
+        verify(taskRepository, never()).save(any());
+    }
+
+    @Test
     void createMultipleChoiceTask__should_create_task_successfully() {
         // Given
         when(courseRepository.findById(1L)).thenReturn(Optional.of(buildingCourse));
         when(taskValidator.validateMultipleChoiceTask(anyString(), anyInt(), any(Course.class), any(List.class)))
                 .thenReturn(Collections.emptyList());
+        when(taskOrderService.hasStatementConflict(anyLong(), anyString())).thenReturn(false);
         
         MultipleChoiceTask savedTask = new MultipleChoiceTask("Which are Java technologies?", 1, buildingCourse, Collections.emptyList());
         when(taskRepository.save(any(MultipleChoiceTask.class))).thenReturn(savedTask);
@@ -183,6 +214,8 @@ class TaskServiceTest {
         
         verify(courseRepository).findById(1L);
         verify(taskValidator).validateMultipleChoiceTask("Which are Java technologies?", 1, buildingCourse, validMultipleChoiceDTO.getOptions());
+        verify(taskOrderService).hasStatementConflict(1L, "Which are Java technologies?");
+        verify(taskOrderService).handleOrderConflict(1L, 1);
         verify(taskRepository).save(any(MultipleChoiceTask.class));
     }
 

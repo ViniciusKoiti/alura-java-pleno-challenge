@@ -13,6 +13,7 @@ import br.com.alura.AluraFake.task.dto.NewSingleChoiceTaskDTO;
 import br.com.alura.AluraFake.task.dto.OptionDTO;
 import br.com.alura.AluraFake.task.dto.OpenTextTaskDTO;
 import br.com.alura.AluraFake.task.service.TaskService;
+import br.com.alura.AluraFake.task.service.TaskOrderService;
 import br.com.alura.AluraFake.task.validator.TaskValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,13 @@ public class TaskServiceImpl implements TaskService {
         private final TaskRepository taskRepository;
         private final CourseRepository courseRepository;
         private final TaskValidator taskValidator;
+        private final TaskOrderService taskOrderService;
 
-    public TaskServiceImpl(TaskRepository taskRepository, CourseRepository courseRepository, TaskValidator taskValidator) {
+    public TaskServiceImpl(TaskRepository taskRepository, CourseRepository courseRepository, TaskValidator taskValidator, TaskOrderService taskOrderService) {
         this.taskRepository = taskRepository;
         this.courseRepository = courseRepository;
         this.taskValidator = taskValidator;
+        this.taskOrderService = taskOrderService;
     }
     @Override
     @Transactional
@@ -40,6 +43,12 @@ public class TaskServiceImpl implements TaskService {
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(formatValidationErrors(errors));
         }
+
+        if (taskOrderService.hasStatementConflict(dto.getCourseId(), dto.getStatement())) {
+            throw new IllegalArgumentException("A task with this statement already exists for this course");
+        }
+
+        taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());
 
         OpenTextTask task = new OpenTextTask(
                 dto.getStatement(),
@@ -69,6 +78,12 @@ public class TaskServiceImpl implements TaskService {
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(formatValidationErrors(errors));
         }
+
+        if (taskOrderService.hasStatementConflict(dto.getCourseId(), dto.getStatement())) {
+            throw new IllegalArgumentException("A task with this statement already exists for this course");
+        }
+
+        taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());
 
         List<TaskOption> options = mapOptions(dto.getOptions());
 
@@ -103,6 +118,12 @@ public class TaskServiceImpl implements TaskService {
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(formatValidationErrors(errors));
         }
+
+        if (taskOrderService.hasStatementConflict(dto.getCourseId(), dto.getStatement())) {
+            throw new IllegalArgumentException("A task with this statement already exists for this course");
+        }
+
+        taskOrderService.handleOrderConflict(dto.getCourseId(), dto.getOrder());
 
         List<TaskOption> options = mapOptions(dto.getOptions());
 
