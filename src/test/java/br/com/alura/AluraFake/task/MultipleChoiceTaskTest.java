@@ -100,4 +100,31 @@ class MultipleChoiceTaskTest {
         assertThat(task.getOptions()).hasSize(4);
         assertThat(newOption.getTask()).isEqualTo(task);
     }
+
+    @Test
+    void constructor__should_allow_null_values() {
+        User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
+        Course course = new Course("Java", "Curso de Java", instructor);
+        
+        MultipleChoiceTask task = new MultipleChoiceTask(null, null, course, null);
+        
+        assertThat(task.getStatement()).isNull();
+        assertThat(task.getOrderPosition()).isNull();
+        assertThat(task.getCourse()).isEqualTo(course);
+        assertThat(task.getOptions()).isEmpty();
+    }
+
+    @Test
+    void constructor__should_handle_empty_options_list() {
+        User instructor = new User("Paulo", "paulo@alura.com.br", Role.INSTRUCTOR);
+        Course course = new Course("Java", "Curso de Java", instructor);
+        List<TaskOption> emptyOptions = List.of();
+        
+        MultipleChoiceTask task = new MultipleChoiceTask("Empty options test", 1, course, emptyOptions);
+        
+        assertThat(task.getStatement()).isEqualTo("Empty options test");
+        assertThat(task.getOrderPosition()).isEqualTo(1);
+        assertThat(task.getCourse()).isEqualTo(course);
+        assertThat(task.getOptions()).isEmpty();
+    }
 }

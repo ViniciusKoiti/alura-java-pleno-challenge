@@ -2,7 +2,6 @@ package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.course.Course;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +16,16 @@ public class MultipleChoiceTask extends Task {
     @Deprecated
     protected MultipleChoiceTask() {}
 
-    public MultipleChoiceTask(@NotNull String statement, @NotNull Integer orderPosition, @NotNull Course course, @NotNull List<TaskOption> options) {
+    public MultipleChoiceTask(String statement, Integer orderPosition, Course course, List<TaskOption> options) {
         super(statement, orderPosition, course);
-        this.options = new ArrayList<>(options);
-        options.forEach(option -> option.setTask(this));
+        if (options != null) {
+            this.options = new ArrayList<>(options);
+            options.forEach(option -> {
+                if (option != null) {
+                    option.setTask(this);
+                }
+            });
+        }
     }
 
     @Override
