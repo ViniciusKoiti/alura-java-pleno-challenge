@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.course.service.CourseCreationService;
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
-import br.com.alura.AluraFake.course.validator.CourseCreationValidator;
 import br.com.alura.AluraFake.user.*;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
@@ -18,17 +18,17 @@ public class CourseController {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final CoursePublicationService coursePublicationService;
-    private final CourseCreationValidator courseCreationValidator;
+    private final CourseCreationService courseCreationService;
 
     @Autowired
     public CourseController(CourseRepository courseRepository,
                             UserRepository userRepository,
                             CoursePublicationService coursePublicationService,
-                            CourseCreationValidator courseCreationValidator){
+                            CourseCreationService courseCreationService){
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.coursePublicationService = coursePublicationService;
-        this.courseCreationValidator = courseCreationValidator;
+        this.courseCreationService = courseCreationService;
     }
 
     @Transactional
@@ -37,16 +37,13 @@ public class CourseController {
 
         Optional<User> possibleAuthor = userRepository.findByEmail(newCourse.getEmailInstructor());
 
-        List<String> errors = courseCreationValidator.validateInstructor(possibleAuthor);
-
+        List<String> errors = courseCreationService.validateInstructor(possibleAuthor);
         if(!errors.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorItemDTO("emailInstructor", String.join(", ", errors)));
         }
 
-        Course course = new Course(newCourse.getTitle(), newCourse.getDescription(), possibleAuthor.get());
-
-        courseRepository.save(course);
+        courseCreationService.createCourse(newCourse, possibleAuthor.get());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

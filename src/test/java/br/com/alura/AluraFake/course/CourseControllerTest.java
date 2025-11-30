@@ -1,7 +1,7 @@
 package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.course.service.CoursePublicationService;
-import br.com.alura.AluraFake.course.validator.CourseCreationValidator;
+import br.com.alura.AluraFake.course.service.CourseCreationService;
 import br.com.alura.AluraFake.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class CourseControllerTest {
     @MockBean
     private CoursePublicationService coursePublicationService;
     @MockBean
-    private CourseCreationValidator courseCreationValidator;
+    private CourseCreationService courseCreationService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -44,7 +44,7 @@ class CourseControllerTest {
 
         doReturn(Optional.empty()).when(userRepository)
                 .findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of("Instructor not found")).when(courseCreationValidator)
+        doReturn(List.of("Instructor not found")).when(courseCreationService)
                 .validateInstructor(Optional.empty());
 
         mockMvc.perform(post("/course/new")
@@ -69,7 +69,7 @@ class CourseControllerTest {
 
         doReturn(Optional.of(user)).when(userRepository)
                 .findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of("User is not an instructor")).when(courseCreationValidator)
+        doReturn(List.of("User is not an instructor")).when(courseCreationService)
                 .validateInstructor(Optional.of(user));
 
         mockMvc.perform(post("/course/new")
@@ -92,7 +92,8 @@ class CourseControllerTest {
         doReturn(true).when(user).isInstructor();
 
         doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
-        doReturn(List.of()).when(courseCreationValidator).validateInstructor(Optional.of(user));
+        doReturn(List.of()).when(courseCreationService).validateInstructor(Optional.of(user));
+        doNothing().when(courseCreationService).createCourse(any(NewCourseDTO.class), eq(user));
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
