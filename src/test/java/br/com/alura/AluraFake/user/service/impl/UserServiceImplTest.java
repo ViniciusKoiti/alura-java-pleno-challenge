@@ -6,6 +6,7 @@ import br.com.alura.AluraFake.user.entities.User;
 import br.com.alura.AluraFake.user.enums.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,7 +53,13 @@ class UserServiceImplTest {
 
         userService.createUser(dto);
 
-        verify(userRepository).save(dto.toModel());
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+
+        User savedUser = userCaptor.getValue();
+        assertThat(savedUser.getEmail()).isEqualTo("ok@example.com");
+        assertThat(savedUser.getName()).isEqualTo("Name");
+        assertThat(savedUser.getRole()).isEqualTo(Role.STUDENT);
     }
 
     @Test
