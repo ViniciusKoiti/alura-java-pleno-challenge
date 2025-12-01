@@ -18,10 +18,7 @@ jobs:
           MYSQL_DATABASE: alurafake_test
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
-          --health-interval=10s --health-timeout=5s --health-retries=5
-          --default-authentication-plugin=mysql_native_password
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v4
@@ -29,13 +26,10 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven
-    - name: Wait for MySQL
-      run: for i in {1..10}; do mysqladmin ping -h 127.0.0.1 --silent && break; sleep 5; done
-    - name: Run tests
-      run: ./mvnw -B test
+    - run: chmod +x ./mvnw
+    - run: ./mvnw test
       env:
         SPRING_PROFILES_ACTIVE: test
-        SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/alurafake_test?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+        SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/alurafake_test
         SPRING_DATASOURCE_USERNAME: root
         SPRING_DATASOURCE_PASSWORD: root
